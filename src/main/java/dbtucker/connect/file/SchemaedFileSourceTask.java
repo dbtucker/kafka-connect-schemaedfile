@@ -142,8 +142,12 @@ public class SchemaedFileSourceTask extends SourceTask {
                                 streamOffset.toString(), lastRecordedOffset.toString());
                         lastRecordedOffset = streamOffset;
                     }
+                } else {
+                    if (config.getReplishAllData()) {
+                        log.trace("Ignoring committed offset ({}) to allow republication of existing data", lastRecordedOffset);
+                        lastRecordedOffset = 0L;
+                    }
                 }
-                log.debug("Found previous offset, trying to skip to file offset {}", lastRecordedOffset);
                 long skipLeft = (Long) lastRecordedOffset;
                 while (skipLeft > 0) {
                     try {
@@ -237,15 +241,19 @@ public class SchemaedFileSourceTask extends SourceTask {
           }
           return null;
       } catch (IOException e) {
-          // IOException thrown when no more records in stream
+            // IOException thrown when no more records in stream
           log.warn("Processed all available data from {}; sleeping to wait additional records", logFilename());
             // Close reader and stream; swallowing exceptions ... we're about to throw a Retry
-          try { reader.close(); } catch (Exception nested) { }
-          if (stream != System.in)
-            try { stream.close(); } catch (Exception nested) { }
+          try { reader.close(); }
+          catch (Exception nested) { }
+          finally { reader = null; }
 
-          stream = null;
-          reader = null;
+          if (stream != System.in) {
+              try { stream.close(); }
+              catch (Exception nested) { }
+              finally { stream = null; }
+          }
+
           synchronized (this) {
               this.wait(1000);
           }
