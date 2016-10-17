@@ -42,6 +42,7 @@ public class SchemaedFileSourceConnectorConfig extends AbstractConfig {
     static final String FILE = "file" ;
     static final String INPUT_TYPE= "input.type" ;
     static final String CSV_HEADERS = "csv.headers" ;
+    static final String REPUBLISH_ALL_DATA = "republish.all.data" ;
     static final String PUBLISH_RATE = "publish.rate" ;
   }
 
@@ -51,6 +52,7 @@ public class SchemaedFileSourceConnectorConfig extends AbstractConfig {
     static final String FILE = "Source filename" ;
     static final String INPUT_TYPE = "CSV or JSON (default)" ;
     static final String CSV_HEADERS = "Include header row in CSV output";
+    static final String REPUBLISH_ALL_DATA = "Publish records to topic even if Connector has published the records in a previous invocation (useful for testing)." ;
     static final String PUBLISH_RATE = "approximate # of file lines per second to publish to the topic" ;
   }
 
@@ -62,7 +64,9 @@ public class SchemaedFileSourceConnectorConfig extends AbstractConfig {
       .define(CfgKeys.INPUT_TYPE, ConfigDef.Type.STRING, "json",
          ConfigDef.Importance.HIGH, CfgTips.INPUT_TYPE)
       .define(CfgKeys.CSV_HEADERS, ConfigDef.Type.BOOLEAN, false,
-         ConfigDef.Importance.LOW, CfgTips.CSV_HEADERS) 
+         ConfigDef.Importance.LOW, CfgTips.CSV_HEADERS)
+      .define(CfgKeys.REPUBLISH_ALL_DATA, ConfigDef.Type.BOOLEAN, false,
+         ConfigDef.Importance.LOW, CfgTips.REPUBLISH_ALL_DATA)
       .define(CfgKeys.PUBLISH_RATE, ConfigDef.Type.INT, 1000,
          ConfigDef.Importance.HIGH, CfgTips.PUBLISH_RATE) ;
 
@@ -104,10 +108,30 @@ public class SchemaedFileSourceConnectorConfig extends AbstractConfig {
     }
 
   public Boolean getCsvHeaders() {
-    return this.getBoolean(CfgKeys.CSV_HEADERS);
+      if (localInputType.equalsIgnoreCase("json")) {
+          return false;
+      } else {
+          return this.getBoolean(CfgKeys.CSV_HEADERS);
+      }
+  }
+
+  public Boolean getReplishAllData() {
+      return this.getBoolean(CfgKeys.REPUBLISH_ALL_DATA);
   }
 
   public Integer getPublishRate(){
     return this.getInt(CfgKeys.PUBLISH_RATE);
   }
+
+    // We need to override this method to ensure that the proper
+    // configurations are propogated down to the SourceTasks (since
+    // that propogation is done strictly through strings).
+  @Override
+    public Map<String, String> originalsStrings() {
+      Map<String,String> copy = super.originalsStrings();
+      copy.put(CfgKeys.INPUT_TYPE, localInputType);
+      copy.put(CfgKeys.CSV_HEADERS, getCsvHeaders().toString());
+
+      return copy;
+    }
 }
