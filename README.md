@@ -16,6 +16,17 @@ connector will override that setting for filenames with an explicit
 .json or .csv extension.
 
 <h2>
+Integration with Kafka Connect
+</h2>
+
+Each Source Connector task updates a single Kafka topic with the
+contents of a single file.  Data appended to the file after
+the Connector is launched will also be posted to the Kafka topic.
+The offset for each topic is managed independently.  Thus, two 
+instantations of the Connector could publish
+the contents of the same file to differen topics.
+
+<h2>
 Known Issues
 </h2>
 
@@ -23,6 +34,9 @@ Additional data arriving in the SourceConnector's input file will be
 published.   However, some users have observed problems with CSV records
 being published more than once under those conditions.  The behavior is 
 being investigated.
+
+Connector behavior is undefined if a file is deleted or otherwise reduced
+in size while the connector is running.
 
 # Unimplemented features
 
