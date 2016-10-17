@@ -1,9 +1,15 @@
 #!/bin/sh
 #
-#	usage: $0 [ Sink | Source ]
+#	usage: $0 [ Sink | Source | SinkAvro | SourceAvro ]
 #		default is BOTH connectors deployed, enabling a "loop test"
+#		Avro suffix enables the Avro data converter (default is JSON)
 
+use_avro=0
 TEST_TYPE=${1}
+if [ "${TEST_TYPE%Avro}" != "${TEST_TYPE}" ] ; then
+	use_avro=1
+	TEST_TYPE="${TEST_TYPE%Avro}"
+fi
 
 READLINK=readlink
 which greadlink &> /dev/null  &&  READLINK=greadlink
@@ -35,7 +41,12 @@ else
 	QS_PROPS="$CFG_DIR/FileSink-quickstart.properties ${CFG_DIR}/FileSource-quickstart.properties"
 fi
 
-$CP_HOME/bin/connect-standalone \
-	$CP_HOME/etc/kafka/connect-standalone.properties \
-	$QS_PROPS
+if [ $use_avro -eq 1 ] ; then
+	SA_PROPS=$CP_HOME/etc/schema-registry/connect-avro-standalone.properties
+else
+	SA_PROPS=$CP_HOME/etc/kafka/connect-standalone.properties
+fi
 
+$CP_HOME/bin/connect-standalone \
+	$SA_PROPS \
+	$QS_PROPS
