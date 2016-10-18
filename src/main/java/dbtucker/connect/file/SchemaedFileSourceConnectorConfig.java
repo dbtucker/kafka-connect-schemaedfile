@@ -65,7 +65,7 @@ public class SchemaedFileSourceConnectorConfig extends AbstractConfig {
          ConfigDef.Importance.HIGH, CfgTips.FILE) 
       .define(CfgKeys.INPUT_TYPE, ConfigDef.Type.STRING, "json",
          ConfigDef.Importance.HIGH, CfgTips.INPUT_TYPE)
-      .define(CfgKeys.CSV_HEADERS, ConfigDef.Type.BOOLEAN, false,
+      .define(CfgKeys.CSV_HEADERS, ConfigDef.Type.BOOLEAN, true,
          ConfigDef.Importance.LOW, CfgTips.CSV_HEADERS)
       .define(CfgKeys.EXCEPTION_ON_EOF, ConfigDef.Type.BOOLEAN, false,
          ConfigDef.Importance.LOW, CfgTips.EXCEPTION_ON_EOF)
