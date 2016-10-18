@@ -102,9 +102,14 @@ public class SchemaedFileSourceTask extends SourceTask {
                 stream.close();
                 log.trace("Closed input stream");
             }
-        } catch (IOException e) {
+        } 
+        catch (IOException e) {
             log.error("Failed to close stream for {} : {} ", 
                 logFilename(), e.toString());
+        }
+        finally {
+            stream = null;
+            reader = null;
         }
         this.notify();
     }
@@ -202,6 +207,14 @@ public class SchemaedFileSourceTask extends SourceTask {
       ArrayList<SourceRecord> records = null;
       long currentTime = System.currentTimeMillis();
       long recordsPerPoll;
+
+
+        // TODO: Improve ExceptionOnEof logic.
+        // The code below only works when each pass through
+        // poll() reads all available records (not a given).
+      if (config.getExceptionOnEof() && streamOffset != null) {
+          throw new ConnectException("No more deta available on FileInputStream");
+      }
 
         // Initialize the bootstrapCsv schema if necessary
       if (recordSchema == null  ||  inputType.equalsIgnoreCase("json")) {

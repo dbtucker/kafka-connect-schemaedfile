@@ -42,6 +42,7 @@ public class SchemaedFileSourceConnectorConfig extends AbstractConfig {
     static final String FILE = "file" ;
     static final String INPUT_TYPE= "input.type" ;
     static final String CSV_HEADERS = "csv.headers" ;
+    static final String EXCEPTION_ON_EOF= "end.on.eof" ;
     static final String REPUBLISH_ALL_DATA = "republish.all.data" ;
     static final String PUBLISH_RATE = "publish.rate" ;
   }
@@ -52,6 +53,7 @@ public class SchemaedFileSourceConnectorConfig extends AbstractConfig {
     static final String FILE = "Source filename" ;
     static final String INPUT_TYPE = "CSV or JSON (default)" ;
     static final String CSV_HEADERS = "Include header row in CSV output";
+    static final String EXCEPTION_ON_EOF= "Throw ConnectException from SourceTask when end-of-file is reached (ending the task)" ;
     static final String REPUBLISH_ALL_DATA = "Publish records to topic even if Connector has published the records in a previous invocation (useful for testing)." ;
     static final String PUBLISH_RATE = "approximate # of file lines per second to publish to the topic" ;
   }
@@ -65,6 +67,8 @@ public class SchemaedFileSourceConnectorConfig extends AbstractConfig {
          ConfigDef.Importance.HIGH, CfgTips.INPUT_TYPE)
       .define(CfgKeys.CSV_HEADERS, ConfigDef.Type.BOOLEAN, false,
          ConfigDef.Importance.LOW, CfgTips.CSV_HEADERS)
+      .define(CfgKeys.EXCEPTION_ON_EOF, ConfigDef.Type.BOOLEAN, false,
+         ConfigDef.Importance.LOW, CfgTips.EXCEPTION_ON_EOF)
       .define(CfgKeys.REPUBLISH_ALL_DATA, ConfigDef.Type.BOOLEAN, false,
          ConfigDef.Importance.LOW, CfgTips.REPUBLISH_ALL_DATA)
       .define(CfgKeys.PUBLISH_RATE, ConfigDef.Type.INT, 1000,
@@ -113,6 +117,10 @@ public class SchemaedFileSourceConnectorConfig extends AbstractConfig {
       } else {
           return this.getBoolean(CfgKeys.CSV_HEADERS);
       }
+  }
+
+  public Boolean getExceptionOnEof() {
+      return this.getBoolean(CfgKeys.EXCEPTION_ON_EOF);
   }
 
   public Boolean getReplishAllData() {
