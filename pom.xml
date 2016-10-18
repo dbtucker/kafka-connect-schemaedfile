@@ -10,7 +10,8 @@
     <name>SchemaedFile</name>
 
     <properties>
-        <kafka.version>0.10.0.0-cp1</kafka.version>
+        <confluent.version>3.0.1</confluent.version>
+        <kafka.version>0.10.0.0</kafka.version>
         <jackson.version>2.7.0</jackson.version>
         <junit.version>4.12</junit.version>
     </properties>
